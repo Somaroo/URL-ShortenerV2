@@ -1,48 +1,73 @@
 package com.URL.Shortener.URLShortenerV2.service;
 
+import com.URL.Shortener.URLShortenerV2.model.URLDTO;
 import com.URL.Shortener.URLShortenerV2.model.Url;
 import com.URL.Shortener.URLShortenerV2.repository.UrlRepository;
 import com.google.common.hash.Hashing;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
+@Component
 public class URLServiceImp implements URLServiceIF {
-    @Autowired
-    Url url;
-
-
 
     @Autowired
-    UrlRepository urlRepository;
-
-    public Url createUrl(String url) {
-
-        
-        LocalDateTime dateTime = LocalDateTime.now();
-
-
-        return null;
-    }
-
+    private UrlRepository urlRepository;
 
     @Override
-    public String getShortUrl(String url) {
-        if (!isUrlValid(url)) {
-            throw new RuntimeException("URL is invalid " + url);
+    public Url createUrl(URLDTO urldto) {
+
+        if(!urldto.getUrl().isEmpty() && isUrlValid(urldto.getUrl())){
+            String uhlShort = urlHashing(urldto.getUrl());
+            LocalDateTime dateTime = LocalDateTime.now();
+            Url url = new Url();
+            url.setUrl(urldto.getUrl());
+            url.setUrlShort(uhlShort);
+            url.setUrlDate(dateTime);
+            url.setUrlCallNumber(1);
+            Url urltoRep = persistUrl(url);
+
+            if(urltoRep != null){
+                return urltoRep;
+            }
+            return null;
         }
-        return urlHashing(url);
-    }
-
-    @Override
-    public String retrieveUrl(String shortUrl) {
         return null;
     }
 
     @Override
-    public void deleteShortUrl(Url url) {
+    public Url updateUrl(URLDTO urldto) {
+
+        Url url = urlRepository.findByUrl(urldto.getUrl());
+        long calls = url.getUrlCallNumber();
+
+        url.setUrlDate(LocalDateTime.now());
+        url.setUrlCallNumber(calls + 1);
+        urlRepository.save(url);
+            return url;
+    }
+
+    @Override
+    public Url persistUrl(Url url) {
+
+        Url urlToRep = urlRepository.save(url);
+        return urlToRep;
+
+    }
+
+    @Override
+    public Url retrieveUrl(String urlShort) {
+
+        Url url = urlRepository.findByUrlShort(urlShort);
+        return url;
+    }
+
+    @Override
+    public void deleteUrlShort(Url url) {
+        urlRepository.delete(url);
 
     }
 
@@ -68,4 +93,7 @@ public class URLServiceImp implements URLServiceIF {
         return urlHash;
 
     }
+
+
+
 }

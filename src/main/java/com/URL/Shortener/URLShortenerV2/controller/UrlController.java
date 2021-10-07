@@ -1,39 +1,69 @@
 package com.URL.Shortener.URLShortenerV2.controller;
 
 
+import com.URL.Shortener.URLShortenerV2.model.URLDTO;
 import com.URL.Shortener.URLShortenerV2.model.Url;
 import com.URL.Shortener.URLShortenerV2.repository.UrlRepository;
+import com.URL.Shortener.URLShortenerV2.service.URLServiceImp;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
+@RestController
 public class UrlController {
 
     @Autowired
+    private URLServiceImp urlServiceImp;
+
+    @Autowired
     UrlRepository urlRepository;
+/*
+    @PostMapping("/url")
+    public Url createUrl(@RequestBody URLDTO urldto) {
 
-    // Post Http Method
-    @PostMapping
-    public String urlGetShort(@RequestBody String url) {
+        if (!urlRepository.existsByUrl(urldto.getUrl())){
+        try {
+                Url createUrl = urlServiceImp.createUrl(urldto);
+                return createUrl;
 
-        return null;
+        }catch (Exception e){
+            e.printStackTrace();
+        }}
 
-      }
-
-    // get Http Method
-    @GetMapping()
-    public String getUrl(@RequestBody String urlShort){
         return null;
     }
 
-    // Delete Http Method
-    @DeleteMapping()
-    public void deleteUrl(@RequestBody String url){
+ */
 
+
+        @PostMapping("/url")
+    public Url createUrl(@RequestBody URLDTO urldto) {
+
+        try {
+            if (!urlRepository.existsByUrl(urldto.getUrl())) {
+                Url createUrl = urlServiceImp.createUrl(urldto);
+                return createUrl;
+            }
+            Url updateUrl = urlServiceImp.updateUrl(urldto);
+            return updateUrl;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
+
+    @GetMapping("/urlShort/{urlShort}")
+    public Url retrieveUrl(@PathVariable String urlShort) {
+
+        try {
+            Url url = urlServiceImp.retrieveUrl(urlShort);
+            return url;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
 
 }
 
