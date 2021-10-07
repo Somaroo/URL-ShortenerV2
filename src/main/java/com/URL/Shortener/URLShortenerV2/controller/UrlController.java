@@ -6,7 +6,11 @@ import com.URL.Shortener.URLShortenerV2.model.Url;
 import com.URL.Shortener.URLShortenerV2.repository.UrlRepository;
 import com.URL.Shortener.URLShortenerV2.service.URLServiceImp;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class UrlController {
@@ -16,41 +20,28 @@ public class UrlController {
 
     @Autowired
     UrlRepository urlRepository;
-/*
+
     @PostMapping("/url")
     public Url createUrl(@RequestBody URLDTO urldto) {
 
-        if (!urlRepository.existsByUrl(urldto.getUrl())){
         try {
-                Url createUrl = urlServiceImp.createUrl(urldto);
-                return createUrl;
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }}
-
-        return null;
-    }
-
- */
-
-
-        @PostMapping("/url")
-    public Url createUrl(@RequestBody URLDTO urldto) {
-
-        try {
-            if (!urlRepository.existsByUrl(urldto.getUrl())) {
+                if (!urlRepository.existsByUrl(urldto.getUrl())) {
                 Url createUrl = urlServiceImp.createUrl(urldto);
                 return createUrl;
             }
             Url updateUrl = urlServiceImp.updateUrl(urldto);
             return updateUrl;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
+    @GetMapping("/allUrl")
+    public List<Url> urlObjs(){
+
+        return urlServiceImp.urlAllObjs();
+    }
 
     @GetMapping("/urlShort/{urlShort}")
     public Url retrieveUrl(@PathVariable String urlShort) {
@@ -62,8 +53,14 @@ public class UrlController {
             e.printStackTrace();
         }
         return null;
-
     }
 
-}
+    @DeleteMapping("/del/{id}")
+    public List<Url> deleteUrl(@PathVariable("id")  Long id) {
 
+        Url urlObj = urlRepository.findById(id).get();
+        urlRepository.delete(urlObj);
+
+        return urlRepository.findAll();
+    }
+}

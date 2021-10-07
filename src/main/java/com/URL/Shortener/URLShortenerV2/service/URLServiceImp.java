@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Component
 public class URLServiceImp implements URLServiceIF {
@@ -41,7 +42,7 @@ public class URLServiceImp implements URLServiceIF {
     @Override
     public Url updateUrl(URLDTO urldto) {
 
-        Url url = urlRepository.findByUrl(urldto.getUrl());
+        Url url = urlRepository.findByUrl(urldto.getUrl()).get();
         long calls = url.getUrlCallNumber();
 
         url.setUrlDate(LocalDateTime.now());
@@ -57,6 +58,11 @@ public class URLServiceImp implements URLServiceIF {
         return urlToRep;
 
     }
+    @Override
+    public List<Url> urlAllObjs(){
+
+        return urlRepository.findAll();
+    }
 
     @Override
     public Url retrieveUrl(String urlShort) {
@@ -67,6 +73,8 @@ public class URLServiceImp implements URLServiceIF {
 
     @Override
     public void deleteUrlShort(Url url) {
+
+
         urlRepository.delete(url);
 
     }
