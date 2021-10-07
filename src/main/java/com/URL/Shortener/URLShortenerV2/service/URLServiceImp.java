@@ -5,6 +5,7 @@ import com.URL.Shortener.URLShortenerV2.model.Url;
 import com.URL.Shortener.URLShortenerV2.repository.UrlRepository;
 import com.google.common.hash.Hashing;
 import org.apache.commons.validator.routines.UrlValidator;
+import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,7 +43,8 @@ public class URLServiceImp implements URLServiceIF {
     @Override
     public Url updateUrl(URLDTO urldto) {
 
-        Url url = urlRepository.findByUrl(urldto.getUrl()).get();
+        Url url = urlRepository.findByUrl(urldto.getUrl())
+                .orElseThrow(()-> new ResourceNotFoundException("Url not found for this urldto :: " + urldto));
         long calls = url.getUrlCallNumber();
 
         url.setUrlDate(LocalDateTime.now());
@@ -67,16 +69,9 @@ public class URLServiceImp implements URLServiceIF {
     @Override
     public Url retrieveUrl(String urlShort) {
 
-        Url url = urlRepository.findByUrlShort(urlShort);
+        Url url = urlRepository.findByUrlShort(urlShort)
+                .orElseThrow(()-> new ResourceNotFoundException("Url not found for this urlShort :: " + urlShort));
         return url;
-    }
-
-    @Override
-    public void deleteUrlShort(Url url) {
-
-
-        urlRepository.delete(url);
-
     }
 
 

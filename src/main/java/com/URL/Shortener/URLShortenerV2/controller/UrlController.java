@@ -5,12 +5,12 @@ import com.URL.Shortener.URLShortenerV2.model.URLDTO;
 import com.URL.Shortener.URLShortenerV2.model.Url;
 import com.URL.Shortener.URLShortenerV2.repository.UrlRepository;
 import com.URL.Shortener.URLShortenerV2.service.URLServiceImp;
+import javassist.NotFoundException;
+import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class UrlController {
@@ -37,7 +37,7 @@ public class UrlController {
         return null;
     }
 
-    @GetMapping("/allUrl")
+    @GetMapping("/allurl")
     public List<Url> urlObjs(){
 
         return urlServiceImp.urlAllObjs();
@@ -55,12 +55,15 @@ public class UrlController {
         return null;
     }
 
+
     @DeleteMapping("/del/{id}")
-    public List<Url> deleteUrl(@PathVariable("id")  Long id) {
+    public List<Url> deleteUrl(@PathVariable("id")  Long id)  {
 
-        Url urlObj = urlRepository.findById(id).get();
+        Url urlObj = urlRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Url not found for this id :: " + id));
+
         urlRepository.delete(urlObj);
-
         return urlRepository.findAll();
     }
+
 }

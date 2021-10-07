@@ -12,7 +12,5 @@ public interface URLServiceIF {
     public Url updateUrl(URLDTO urldto);
     public Url persistUrl(Url url);
     public Url retrieveUrl(String urlShort);
-    public void deleteUrlShort(Url url);
-
 
 }
