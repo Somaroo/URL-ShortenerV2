@@ -5,7 +5,6 @@ import com.URL.Shortener.URLShortenerV2.model.URLDTO;
 import com.URL.Shortener.URLShortenerV2.model.Url;
 import com.URL.Shortener.URLShortenerV2.repository.UrlRepository;
 import com.URL.Shortener.URLShortenerV2.service.URLServiceImp;
-import javassist.NotFoundException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -54,7 +53,6 @@ public class UrlController {
         }
         return null;
     }
-
 
     @DeleteMapping("/del/{id}")
     public List<Url> deleteUrl(@PathVariable("id")  Long id)  {

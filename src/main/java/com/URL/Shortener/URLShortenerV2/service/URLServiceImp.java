@@ -16,23 +16,24 @@ import java.util.List;
 @Component
 public class URLServiceImp implements URLServiceIF {
 
+
     @Autowired
     private UrlRepository urlRepository;
 
     @Override
     public Url createUrl(URLDTO urldto) {
 
-        if(!urldto.getUrl().isEmpty() && isUrlValid(urldto.getUrl())){
+        if (isUrlValid(urldto.getUrl())) {
             String uhlShort = urlHashing(urldto.getUrl());
             LocalDateTime dateTime = LocalDateTime.now();
-            Url url = new Url();
-            url.setUrl(urldto.getUrl());
-            url.setUrlShort(uhlShort);
-            url.setUrlDate(dateTime);
-            url.setUrlCallNumber(1);
-            Url urltoRep = persistUrl(url);
+            Url urlObj = new Url();
+            urlObj.setUrl(urldto.getUrl());
+            urlObj.setUrlShort(uhlShort);
+            urlObj.setUrlDate(dateTime);
+            urlObj.setUrlCallNumber(1);
+            Url urltoRep = persistUrl(urlObj);
 
-            if(urltoRep != null){
+            if (urltoRep != null) {
                 return urltoRep;
             }
             return null;
@@ -43,25 +44,26 @@ public class URLServiceImp implements URLServiceIF {
     @Override
     public Url updateUrl(URLDTO urldto) {
 
-        Url url = urlRepository.findByUrl(urldto.getUrl())
-                .orElseThrow(()-> new ResourceNotFoundException("Url not found for this urldto :: " + urldto));
-        long calls = url.getUrlCallNumber();
+        Url urlObj = urlRepository.findByUrl(urldto.getUrl().trim())
+                .orElseThrow(() -> new ResourceNotFoundException("Url not found for this urldto :: " + urldto));
+        long calls = urlObj.getUrlCallNumber();
 
-        url.setUrlDate(LocalDateTime.now());
-        url.setUrlCallNumber(calls + 1);
-        urlRepository.save(url);
-            return url;
+        urlObj.setUrlDate(LocalDateTime.now());
+        urlObj.setUrlCallNumber(calls + 1);
+        urlRepository.save(urlObj);
+        return urlObj;
     }
 
     @Override
-    public Url persistUrl(Url url) {
+    public Url persistUrl(Url urlObj) {
 
-        Url urlToRep = urlRepository.save(url);
+        Url urlToRep = urlRepository.save(urlObj);
         return urlToRep;
 
     }
+
     @Override
-    public List<Url> urlAllObjs(){
+    public List<Url> urlAllObjs() {
 
         return urlRepository.findAll();
     }
@@ -69,21 +71,26 @@ public class URLServiceImp implements URLServiceIF {
     @Override
     public Url retrieveUrl(String urlShort) {
 
-        Url url = urlRepository.findByUrlShort(urlShort)
-                .orElseThrow(()-> new ResourceNotFoundException("Url not found for this urlShort :: " + urlShort));
-        return url;
+        Url urlObj = urlRepository.findByUrlShort(urlShort.trim())
+                .orElseThrow(() -> new ResourceNotFoundException("Url not found for this urlShort : " + urlShort));
+        return urlObj;
     }
 
 
     //is Url valid
     private boolean isUrlValid(String url) {
 
-        boolean urlValid;
-
-        UrlValidator urlValidator = new UrlValidator(new String[]{"http", "https"});
-        urlValid = urlValidator.isValid(url);
-
-        return urlValid;
+        if (url == null || url.trim().isEmpty()) {
+            throw new RuntimeException("URL :"+ url +": is invalid");
+        } else {
+            String urll = url.trim();
+            String[] schemes = {"http", "https"};
+            UrlValidator urlValidator = new UrlValidator(schemes, UrlValidator.ALLOW_2_SLASHES);
+            if (!urlValidator.isValid(urll)) {
+                throw new RuntimeException("URL :"+ url +": is invalid");
+            }
+        }
+        return true;
     }
 
     // Hashing for Url
@@ -91,12 +98,11 @@ public class URLServiceImp implements URLServiceIF {
 
         String urlHash;
 
-        urlHash = Hashing.murmur3_32_fixed().hashString(url, StandardCharsets.UTF_8).toString();
+        urlHash = Hashing.murmur3_32_fixed().hashString(url.trim(), StandardCharsets.UTF_8).toString();
 
         return urlHash;
 
     }
-
 
 
 }
